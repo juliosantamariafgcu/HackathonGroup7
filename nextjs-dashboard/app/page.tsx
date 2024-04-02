@@ -9,7 +9,7 @@ export default function Page() {
   return (
     <main className="flex min-h-screen flex-col p-6">
       <div className="flex h-20 shrink-0 items-end rounded-lg bg-red-500 p-4 md:h-52">
-        <p className={`${lusitana.className} text-xl text-white-800 md:text-3xl md:leading-normal`}>
+        <p className={`${lusitana.className} text-xl text-white-800 md:text-10xl md:leading-normal`}>
           <strong>PrivatePTO</strong>
         </p>
       </div>
