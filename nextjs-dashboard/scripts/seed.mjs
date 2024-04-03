@@ -38,12 +38,12 @@ async function main() {
     );
   `);
 
-  // await client.query(`
-  //   CREATE TABLE IF NOT EXISTS managers (
-  //     id UUID PRIMARY KEY,
-  //     FOREIGN KEY (id) REFERENCES employees
-  //   );
-  // `);
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS managers (
+      id UUID PRIMARY KEY,
+      FOREIGN KEY (id) REFERENCES employees
+    );
+  `);
 
   await client.query(`
     CREATE TABLE IF NOT EXISTS schedules (
