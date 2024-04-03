@@ -1,6 +1,6 @@
 'use client'
 import {
-  Week, Month, Agenda, ScheduleComponent, ViewsDirective, ViewDirective, EventSettingsModel, ResourcesDirective, ResourceDirective, Inject, Resize, DragAndDrop
+  Agenda, ScheduleComponent, ViewsDirective, ViewDirective, EventSettingsModel, ResourcesDirective, ResourceDirective, Inject, Resize, DragAndDrop
 } from '@syncfusion/ej2-react-schedule';
 import { timelineResourceData } from './datasource';
 
@@ -19,11 +19,9 @@ export default function Page() {
   ];
   return (
     <>
-      <h2>Syncfusion React Schedule Component</h2>
+      <h2>Schedule</h2>
       <ScheduleComponent width='100%' height='550px' currentView='Month' selectedDate={new Date(2018, 3, 4)} eventSettings={eventSettings} group={group} >
         <ViewsDirective>
-          <ViewDirective option='Week' />
-          <ViewDirective option='Month' />
           <ViewDirective option='Agenda' />
         </ViewsDirective>
         <ResourcesDirective>
@@ -34,7 +32,7 @@ export default function Page() {
                              dataSource={categoryData} textField='text' idField='id' colorField='color'>
           </ResourceDirective>
         </ResourcesDirective>
-        <Inject services={[Week, Month, Agenda, Resize, DragAndDrop]} />
+        <Inject services={[Agenda, Resize, DragAndDrop]} />
       </ScheduleComponent>
     </>
   )
