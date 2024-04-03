@@ -39,13 +39,24 @@ export default async function Page() {
                 <Card title="Your PTO" value={totalPaidInvoices} type="collected" />
             </div>
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-
-            <ScheduleComponent selectedDate={new Date(2018, 3, 4)} eventSettings={eventSettings} group={group}>
-            </ScheduleComponent>
-
             <LatestInvoices latestInvoices={latestInvoices}/>
-
           </div>
+          <ScheduleComponent width='100%' height='550px' currentView='Month' selectedDate={new Date(2018, 3, 4)} eventSettings={eventSettings} group={group} >
+            <ViewsDirective>
+              <ViewDirective option='Week' />
+              <ViewDirective option='Month' />
+              <ViewDirective option='Agenda' />
+            </ViewsDirective>
+            <ResourcesDirective>
+              <ResourceDirective field='ProjectId' title='Choose Project' name='Projects' allowMultiple={false}
+                                 dataSource={projectData} textField='text' idField='id' colorField='color'>
+              </ResourceDirective>
+              <ResourceDirective field='TaskId' title='Category' name='Categories' allowMultiple={true}
+                                 dataSource={categoryData} textField='text' idField='id' colorField='color'>
+              </ResourceDirective>
+            </ResourcesDirective>
+            <Inject services={[Week, Month, Agenda, Resize, DragAndDrop]} />
+          </ScheduleComponent>
         </main>
     );
 }
