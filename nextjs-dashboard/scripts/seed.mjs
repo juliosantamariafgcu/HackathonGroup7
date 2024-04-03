@@ -2,6 +2,7 @@ import pg from 'pg';
 import {} from '../app/lib/placeholder-data.js';
 const Client = pg.Client;
 
+// NOTE: Objects created by this function should be dropped by `drop.mjs`.
 async function main() {
   const client = new Client();
   await client.connect();
@@ -30,8 +31,10 @@ async function main() {
     CREATE TABLE IF NOT EXISTS non_managers (
       id UUID PRIMARY KEY,
       team_name VARCHAR(127) NOT NULL,
+      role TEXT NOT NULL,
       FOREIGN KEY (id) REFERENCES employees,
-      FOREIGN KEY (team_name) REFERENCES teams (name)
+      FOREIGN KEY (team_name) REFERENCES teams (name),
+      CHECK (role IN ('Employee', 'Team Leader'))
     );
   `);
 
@@ -41,13 +44,6 @@ async function main() {
   //     FOREIGN KEY (id) REFERENCES employees
   //   );
   // `);
-
-  await client.query(`
-    CREATE TABLE IF NOT EXISTS team_leaders (
-      id UUID PRIMARY KEY,
-      FOREIGN KEY (id) REFERENCES non_managers
-    );
-  `);
 
   await client.query(`
     CREATE TABLE IF NOT EXISTS schedules (

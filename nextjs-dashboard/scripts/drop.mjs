@@ -1,6 +1,7 @@
 import pg from 'pg';
 const Client = pg.Client;
 
+// NOTE: Objects dropped by this function should be created by `seed.mjs`.
 async function main() {
   const client = new Client();
   await client.connect();
@@ -9,9 +10,11 @@ async function main() {
   await client.query('DROP TABLE IF EXISTS employees CASCADE;');
   await client.query('DROP TABLE IF EXISTS non_managers CASCADE;');
   await client.query('DROP TABLE IF EXISTS managers CASCADE;');
-  await client.query('DROP TABLE IF EXISTS team_leaders CASCADE;');
   await client.query('DROP TABLE IF EXISTS schedules CASCADE;');
   await client.query('DROP TABLE IF EXISTS requests CASCADE;');
+
+  // These tables are no longer used but will still be dropped.
+  await client.query('DROP TABLE IF EXISTS team_leaders CASCADE;');
 
   await client.end();
 }
