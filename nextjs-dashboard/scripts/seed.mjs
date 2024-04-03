@@ -75,7 +75,7 @@ async function main() {
       status TEXT DEFAULT 'Pending' NOT NULL,
       PRIMARY KEY (employee_id, made_on),
       FOREIGN KEY (employee_id) REFERENCES employees (id),
-      CHECK (status in ('Pending', 'Approved', 'Rejected'))
+      CHECK (status IN ('Pending', 'Approved', 'Rejected'))
     );
   `);
 
