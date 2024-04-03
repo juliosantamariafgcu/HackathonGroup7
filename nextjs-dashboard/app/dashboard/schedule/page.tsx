@@ -1,3 +1,5 @@
-export default function Page() {
-  return <p>Schedule Page</p>;
+import schedule from '@/app/ui/schedule/schedule';
+
+export default async function Page() {
+
 }
