@@ -5,7 +5,8 @@
     "dev": "next dev",
     "start": "node_modules/next/dist/bin/next start -p $PORT",
     "seed": "node -r dotenv/config ./scripts/seed.mjs",
-    "lint": "next lint"
+    "lint": "next lint",
+    "dangerous-drop": "node -r dotenv/config ./scripts/drop.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
