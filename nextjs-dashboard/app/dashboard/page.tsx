@@ -16,6 +16,7 @@ export default async function Page() {
     const {
         totalPaidInvoices,
     } = await fetchCardData();
+
   const eventSettings: EventSettingsModel = { dataSource: timelineResourceData }
   const group = { byGroupID: false, resources: ['Projects', 'Categories'] }
   const projectData: Object[] = [
@@ -40,8 +41,7 @@ export default async function Page() {
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
 
             <h2>Syncfusion React Schedule Component</h2>
-            <ScheduleComponent width='100%' height='550px' currentView='Month' selectedDate={new Date(2018, 3, 4)}
-                               eventSettings={eventSettings} group={group}>
+            <ScheduleComponent selectedDate={new Date(2018, 3, 4)} eventSettings={eventSettings} group={group}>
               <ViewsDirective>
                 <ViewDirective option='Week'/>
                 <ViewDirective option='Month'/>
