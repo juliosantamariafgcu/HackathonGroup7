@@ -16,9 +16,6 @@ export default function Page() {
           <p className={`${lusitana.className} text-xl text-gray-800 md:text-3xl md:leading-normal`}>
             <strong>Welcome to PrivatePTO.</strong> Where Employees can manage and request thier PTO hours,
             pick up free shifts, and Managers can view and manage incoming PTO requests all in one place!
-            {/* This is the example for the{' '}
-            <a href="https://nextjs.org/learn/" className="text-red-500">
-              Next.js Learn Course a>*/}
           </p>
           <Link
               href="/login"
