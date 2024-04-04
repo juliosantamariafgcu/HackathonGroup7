@@ -183,3 +183,123 @@ export async function fetchManager(email: string) {
     throw new AggregateError([error], 'Failed to fetch manager.');
   }
 }
+
+// Add a team to the database.
+export async function addTeam(team: Team) {
+  try {
+    const result = await query('INSERT INTO teams VALUES ($1, $2);', [
+      team.name,
+      team.description,
+    ]);
+    if (result.rowCount == 0) {
+      throw new Error(`Failed to add team '${team.name}'`);
+    }
+  } catch (error) {
+    console.error('Failed to add team:', error);
+    throw new AggregateError([error], 'Failed to add team.');
+  }
+}
+
+// Add an employee to the database.
+// The employee should be made into a manager or non-manager later.
+export async function addEmployee(employee: Employee) {
+  try {
+    const result = await query(
+      `
+        INSERT INTO employees
+        VALUES ($1, $2, $3, $4, $5);
+      `,
+      [
+        employee.email,
+        employee.name,
+        employee.password,
+        employee.yearly_paid_time_off.toFixed(2),
+        employee.remaining_paid_time_off.toFixed(2),
+      ],
+    );
+    if (result.rowCount == 0) {
+      throw new Error(`Failed to add employee '${employee.email}'`);
+    }
+  } catch (error) {
+    console.error('Failed to add employee:', error);
+    throw new AggregateError([error], 'Failed to add employee.');
+  }
+}
+
+// Add a non-manager employee to the database.
+export async function addNonManager(nonManager: NonManager) {
+  const client = await getClient();
+  try {
+    await query('BEGIN');
+    await query(
+      `
+        INSERT INTO employees
+        VALUES ($1, $2, $3, $4, $5);
+      `,
+      [
+        nonManager.email,
+        nonManager.name,
+        nonManager.password,
+        nonManager.yearly_paid_time_off.toFixed(2),
+        nonManager.remaining_paid_time_off.toFixed(2),
+      ],
+    );
+    await query(
+      `
+        INSERT INTO non_managers
+        VALUES ($1, $2, $3);
+      `,
+      [nonManager.email, nonManager.team_name, nonManager.role],
+    );
+    const result = await query('COMMIT');
+    if (result.rowCount == 0) {
+      throw new Error(`Failed to add non-manager '${nonManager.email}'`);
+    }
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error(`Failed to add non-manager:`, error);
+    throw new AggregateError([error], `Failed to add non-manager.`);
+  } finally {
+    client.release();
+  }
+}
+
+// Add a manager to the database.
+export async function addManager(manager: Manager) {
+  const client = await getClient();
+  try {
+    await query('BEGIN');
+    await query(
+      `
+        INSERT INTO employees
+        VALUES ($1, $2, $3, $4, $5);
+      `,
+      [
+        manager.email,
+        manager.name,
+        manager.password,
+        manager.yearly_paid_time_off.toFixed(2),
+        manager.remaining_paid_time_off.toFixed(2),
+      ],
+    );
+    await query('INSERT INTO managers VALUES ($1);', [manager.email]);
+    const result = await query('COMMIT');
+    if (result.rowCount == 0) {
+      throw new Error(`Failed to add manager '${manager.email}'`);
+    }
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error(`Failed to add manager:`, error);
+    throw new AggregateError([error], `Failed to add manager.`);
+  } finally {
+    client.release();
+  }
+}
+
+// Add a non-manager or manager to the database.
+export function addAnyEmployee(employee: AnyEmployee) {
+  if (employee.role == 'Manager') {
+    return addManager(employee);
+  }
+  return addNonManager(employee);
+}
