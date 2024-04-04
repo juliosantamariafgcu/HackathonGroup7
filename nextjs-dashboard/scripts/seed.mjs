@@ -21,7 +21,9 @@ async function main() {
       name VARCHAR(127) NOT NULL CHECK (name <> ''),
       password TEXT NOT NULL,
       yearly_paid_time_off NUMERIC(4, 2) NOT NULL,
-      CHECK (yearly_paid_time_off >= 0)
+      remaining_paid_time_off NUMERIC(4, 2) NOT NULL,
+      CHECK (yearly_paid_time_off >= 0),
+      CHECK (remaining_paid_time_off >= 0)
     );
   `);
 
