@@ -1,4 +1,5 @@
 import type { NextAuthConfig } from 'next-auth';
+process.env.SECRET;
 
 export const authConfig = {
   pages: {
