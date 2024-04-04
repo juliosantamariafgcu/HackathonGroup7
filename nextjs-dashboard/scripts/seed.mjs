@@ -1,4 +1,4 @@
-import { db, VercelPoolClient } from '@vercel/postgres';
+import { db } from '@vercel/postgres';
 import { teams, employees } from '../app/lib/placeholder-data.js';
 import * as bcrypt from 'bcrypt-ts';
 
