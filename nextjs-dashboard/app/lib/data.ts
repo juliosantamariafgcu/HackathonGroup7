@@ -12,16 +12,22 @@ import {
 let globalPool: Pool | null = null;
 
 // TODO(Daniel): Remove this when we switch back to the Vercel Postgres package.
-async function query<R extends QueryResultRow = any, I extends any[] = any[]>(
-  queryText: string,
-  values?: I,
-) {
+function getClient() {
   // If we don't have a global pool yet, create one.
   if (!globalPool) {
     globalPool = new Pool();
   }
   // Connect using a client from the pool.
-  const client = await globalPool.connect();
+  return globalPool.connect();
+}
+
+// TODO(Daniel): Remove this when we switch back to the Vercel Postgres package.
+async function query<R extends QueryResultRow = any, I extends any[] = any[]>(
+  queryText: string,
+  values?: I,
+) {
+  // Connect using a client from the pool.
+  const client = await getClient();
   try {
     // Execute the query.
     return await client.query<R, I>(queryText, values);
@@ -31,8 +37,39 @@ async function query<R extends QueryResultRow = any, I extends any[] = any[]>(
   }
 }
 
-// FIXME(Daniel): Implement this.
-export async function requestTimeOff() {}
+// Request hours off for an employee given their email address.
+export async function requestTimeOff(
+  request: Omit<Request, 'made_on' | 'status'>,
+) {
+  const client = await getClient();
+  try {
+    await query('BEGIN');
+    await query(
+      `
+      INSERT INTO requests (employee_email, made_on, reason, day_off, hours_off)
+      VALUES ($1, $2, $3, $4, $5);
+      `,
+      [
+        request.employee_email,
+        'FIXME',
+        request.reason,
+        'FIXME',
+        request.hours_off,
+      ],
+    );
+    await query('COMMIT');
+  } catch (error) {
+    await client.query('ROLLBACK');
+    const { employee_email: email } = request;
+    console.error(`Failed to request time off for '${email}':`, error);
+    throw new AggregateError(
+      [error],
+      `Failed to request time off for '${email}'.`,
+    );
+  } finally {
+    client.release();
+  }
+}
 
 // FIXME(Daniel): Implement this.
 export async function fetchPendingRequests() {}
