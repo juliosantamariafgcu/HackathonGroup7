@@ -1,5 +1,4 @@
 import type { NextAuthConfig } from 'next-auth';
-process.env.SECRET;
 
 export const authConfig = {
   pages: {
@@ -18,5 +17,6 @@ export const authConfig = {
       return true;
     },
   },
+  secret: process.env.SECRET,
   providers: [], // Add providers with an empty array for now
 } satisfies NextAuthConfig;

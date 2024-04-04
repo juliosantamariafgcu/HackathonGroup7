@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
 import * as bcrypt from 'bcrypt-ts';
-process.env.SECRET;
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -19,6 +18,7 @@ async function getUser(email: string): Promise<User | undefined> {
 
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  secret: process.env.SECRET,
   providers: [
     Credentials({
       async authorize(credentials) {
