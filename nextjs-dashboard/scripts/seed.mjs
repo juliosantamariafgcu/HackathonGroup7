@@ -1,12 +1,14 @@
 import pg from 'pg';
-import {} from '../app/lib/placeholder-data.js';
+import { teams, employees } from '../app/lib/placeholder-data.js';
+import * as bcrypt from 'bcrypt-ts';
 const { Client } = pg;
 
-// NOTE: Objects created by this function should be dropped by `drop.mjs`.
-async function main() {
-  const client = new Client();
-  await client.connect();
-
+/**
+ * Add teams from the placeholder data file.
+ * NOTE: Objects created by this function should be dropped by `drop.mjs`.
+ * @param {pg.Client} client
+ */
+async function seedTeams(client) {
   await client.query(`
     CREATE TABLE IF NOT EXISTS teams (
       name VARCHAR(127) PRIMARY KEY CHECK (name <> ''),
@@ -14,6 +16,20 @@ async function main() {
     );
   `);
 
+  for (const team of teams) {
+    await client.query('INSERT INTO teams VALUES ($1, $2);', [
+      team.name,
+      team.description,
+    ]);
+  }
+}
+
+/**
+ * Add different types of employees from the placeholder data file.
+ * NOTE: Objects created by this function should be dropped by `drop.mjs`.
+ * @param {pg.Client} client
+ */
+async function seedEmployees(client) {
   // NOTE: Passwords must be salted and hashed using bcrypt.
   await client.query(`
     CREATE TABLE IF NOT EXISTS employees (
@@ -48,6 +64,35 @@ async function main() {
       FOREIGN KEY (email) REFERENCES employees
     );
   `);
+
+  for (const employee of employees) {
+    await client.query('INSERT INTO employees VALUES ($1, $2, $3, $4, $5);', [
+      employee.email,
+      employee.name,
+      await bcrypt.hash(employee.password, 10),
+      employee.yearly_paid_time_off.toFixed(2),
+      employee.remaining_paid_time_off.toFixed(2),
+    ]);
+
+    if (employee.role == 'Manager') {
+      await client.query('INSERT INTO managers VALUES ($1);', [employee.email]);
+    } else {
+      await client.query('INSERT INTO non_managers VALUES ($1, $2, $3);', [
+        employee.email,
+        employee.team_name,
+        employee.role,
+      ]);
+    }
+  }
+}
+
+// NOTE: Objects created by this function should be dropped by `drop.mjs`.
+async function main() {
+  const client = new Client();
+  await client.connect();
+
+  await seedTeams(client);
+  await seedEmployees(client);
 
   await client.query(`
     CREATE TABLE IF NOT EXISTS schedules (
