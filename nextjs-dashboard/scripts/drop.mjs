@@ -1,10 +1,8 @@
-import pg from 'pg';
-const Client = pg.Client;
+import { db } from '@vercel/postgres';
 
 // NOTE: Objects dropped by this function should be created by `seed.mjs`.
 async function main() {
-  const client = new Client();
-  await client.connect();
+  const client = await db.connect();
 
   await client.query('DROP TABLE IF EXISTS teams CASCADE;');
   await client.query('DROP TABLE IF EXISTS employees CASCADE;');
@@ -16,7 +14,7 @@ async function main() {
   // These tables are no longer used but will still be dropped.
   await client.query('DROP TABLE IF EXISTS team_leaders CASCADE;');
 
-  await client.end();
+  await client.release();
 }
 
 main().catch((err) => {

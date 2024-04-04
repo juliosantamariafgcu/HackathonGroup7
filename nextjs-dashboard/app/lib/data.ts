@@ -1,4 +1,4 @@
-import { Pool, QueryResultRow } from 'pg';
+import { QueryResultRow, db } from '@vercel/postgres';
 import {
   Team,
   Employee,
@@ -9,19 +9,11 @@ import {
   Request,
 } from './definitions';
 
-let globalPool: Pool | null = null;
-
-// TODO(Daniel): Remove this when we switch back to the Vercel Postgres package.
 function getClient() {
-  // If we don't have a global pool yet, create one.
-  if (!globalPool) {
-    globalPool = new Pool();
-  }
   // Connect using a client from the pool.
-  return globalPool.connect();
+  return db.connect();
 }
 
-// TODO(Daniel): Remove this when we switch back to the Vercel Postgres package.
 async function query<R extends QueryResultRow = any, I extends any[] = any[]>(
   queryText: string,
   values?: I,
