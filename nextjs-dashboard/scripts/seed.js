@@ -5,7 +5,7 @@ const {
   revenue,
   users,
 } = require('../app/lib/placeholder-data.js');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt-ts');
 
 async function seedUsers(client) {
   try {
@@ -25,7 +25,7 @@ async function seedUsers(client) {
     // Insert data into the "users" table
     const insertedUsers = await Promise.all(
       users.map(async (user) => {
-        const hashedPassword = await bcrypt.hash(user.password, 10);
+        const hashedPassword = bcrypt.hashSync(plainTextPassword, 10);
         return client.sql`
         INSERT INTO users (id, name, email, password)
         VALUES (${user.id}, ${user.name}, ${user.email}, ${hashedPassword})
