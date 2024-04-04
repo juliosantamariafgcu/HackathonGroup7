@@ -7,7 +7,7 @@ import { fetchEmployee } from './app/lib/data';
 
 export const { auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  secret: "4jvw3zxkB5C95c0r65wZxd9ru6o6QRQ4JjuwjCf/7Dk=",
+  secret: process.env.SECRET,
   providers: [
     Credentials({
       async authorize(credentials) {
