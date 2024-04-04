@@ -18,7 +18,6 @@
     "autoprefixer": "10.4.15",
     "aws-sdk": "^2.1396.0",
     "babel": "^6.23.0",
-    "bcrypt": "^5.1.1",
     "bcrypt-ts": "^5.0.2",
     "clsx": "^2.0.0",
     "mock-aws-s3": "^4.0.2",
@@ -37,8 +36,6 @@
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@types/bcrypt": "^5.0.1",
-    "@types/bcryptjs": "^2.4.6",
     "@types/react": "18.2.21",
     "@types/react-dom": "18.2.14",
     "@vercel/style-guide": "^5.0.1",
