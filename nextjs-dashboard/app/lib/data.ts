@@ -1,246 +1,185 @@
-import { sql } from '@vercel/postgres';
+import { Pool, QueryResultRow } from 'pg';
 import {
-  CustomerField,
-  CustomersTableType,
-  InvoiceForm,
-  InvoicesTable,
-  LatestInvoiceRaw,
-  User,
-  Revenue,
+  Team,
+  Employee,
+  NonManager,
+  Manager,
+  AnyEmployee,
+  Schedule,
+  Request,
 } from './definitions';
-import { formatCurrency } from './utils';
-import { unstable_noStore as noStore } from 'next/cache';
 
-export async function fetchRevenue() {
-  noStore();
+let globalPool: Pool | null = null;
 
-  try {
-    // Artificially delay a response for demo purposes.
-    // Don't do this in production :)
-
-    // console.log('Fetching revenue data...');
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
-
-    const data = await sql<Revenue>`SELECT * FROM revenue`;
-
-    // console.log('Data fetch completed after 3 seconds.');
-
-    return data.rows;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch revenue data.');
+// TODO(Daniel): Remove this when we switch back to the Vercel Postgres package.
+function getClient() {
+  // If we don't have a global pool yet, create one.
+  if (!globalPool) {
+    globalPool = new Pool();
   }
+  // Connect using a client from the pool.
+  return globalPool.connect();
 }
 
-export async function fetchLatestInvoices() {
-  noStore();
-
-  try {
-    const data = await sql<LatestInvoiceRaw>`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`;
-
-    const latestInvoices = data.rows.map((invoice) => ({
-      ...invoice,
-      amount: formatCurrency(invoice.amount),
-    }));
-    return latestInvoices;
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch the latest invoices.');
-  }
-}
-
-export async function fetchCardData() {
-  noStore();
-
-  try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`;
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`;
-    const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`;
-
-    const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
-    ]);
-
-    const numberOfInvoices = Number(data[0].rows[0].count ?? '0');
-    const numberOfCustomers = Number(data[1].rows[0].count ?? '0');
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? '0');
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? '0');
-
-    return {
-      numberOfCustomers,
-      numberOfInvoices,
-      totalPaidInvoices,
-      totalPendingInvoices,
-    };
-  } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch card data.');
-  }
-}
-
-const ITEMS_PER_PAGE = 6;
-export async function fetchFilteredInvoices(
-  query: string,
-  currentPage: number,
+// TODO(Daniel): Remove this when we switch back to the Vercel Postgres package.
+async function query<R extends QueryResultRow = any, I extends any[] = any[]>(
+  queryText: string,
+  values?: I,
 ) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE;
-  noStore();
-
+  // Connect using a client from the pool.
+  const client = await getClient();
   try {
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `;
+    // Execute the query.
+    return await client.query<R, I>(queryText, values);
+  } finally {
+    // Release the client back into the pool.
+    client.release();
+  }
+}
 
-    return invoices.rows;
+// Request hours off for an employee given their email address.
+export async function requestTimeOff(
+  request: Omit<Request, 'made_on' | 'status'>,
+) {
+  const client = await getClient();
+  try {
+    await query('BEGIN');
+    await query(
+      `
+      INSERT INTO requests (employee_email, made_on, reason, day_off, hours_off)
+      VALUES ($1, $2, $3, $4, $5);
+      `,
+      [
+        request.employee_email,
+        'FIXME',
+        request.reason,
+        'FIXME',
+        request.hours_off,
+      ],
+    );
+    await query('COMMIT');
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoices.');
+    await client.query('ROLLBACK');
+    const { employee_email: email } = request;
+    console.error(`Failed to request time off for '${email}':`, error);
+    throw new AggregateError(
+      [error],
+      `Failed to request time off for '${email}'.`,
+    );
+  } finally {
+    client.release();
   }
 }
 
-export async function fetchInvoicesPages(query: string) {
-  noStore();
+// FIXME(Daniel): Implement this.
+export async function fetchPendingRequests() {}
 
+// Fetch all employees. Different types of employees can be differentiated by
+// examining the `role` property. Each non-manager employees always has a
+// `role` equal to 'Employee' or 'Team Leader'. Managers don't have a `role`
+// attribute in the database, but the `role` property is reused and equals
+// 'Manager' for all managers returned by this function.
+export async function fetchEmployees() {
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `;
-
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE);
-    return totalPages;
+    const employees = await query(`
+      (
+        SELECT
+          email, name, password, yearly_paid_time_off, remaining_paid_time_off,
+          NULL AS team_name, 'Manager' AS role
+        FROM managers
+        JOIN employees USING (email)
+      ) UNION (
+        SELECT
+          email, name, password, yearly_paid_time_off, remaining_paid_time_off,
+          team_name, role
+        FROM non_managers
+        JOIN employees USING (email)
+      );
+    `);
+    return employees.rows.map((row) => ({
+      ...row,
+      yearly_paid_time_off: Number.parseFloat(row.yearly_paid_time_off),
+      remaining_paid_time_off: Number.parseFloat(row.remaining_paid_time_off),
+    })) as AnyEmployee[];
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch total number of invoices.');
+    console.error('Failed to fetch employees:', error);
+    throw new AggregateError([error], 'Failed to fetch employees.');
   }
 }
 
-export async function fetchInvoiceById(id: string) {
-  noStore();
-
+// Fetch a single generic employee given their email address.
+export async function fetchEmployee(email: string) {
   try {
-    const data = await sql<InvoiceForm>`
-      SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `;
-
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
-      // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }));
-
-    return invoice[0];
+    const employee = await query(`SELECT * FROM employees WHERE email=$1;`, [
+      email,
+    ]);
+    if (employee.rows.length == 0) {
+      throw new Error(`No employee has the email address '${email}'`);
+    }
+    const row = employee.rows[0];
+    return {
+      ...row,
+      yearly_paid_time_off: Number.parseFloat(row.yearly_paid_time_off),
+      remaining_paid_time_off: Number.parseFloat(row.remaining_paid_time_off),
+    } as Employee;
   } catch (error) {
-    console.error('Database Error:', error);
-    throw new Error('Failed to fetch invoice.');
+    console.error('Failed to fetch employee:', error);
+    throw new AggregateError([error], 'Failed to fetch employee.');
   }
 }
 
-export async function fetchCustomers() {
-  noStore();
-
+// Fetch a single non-manager employee given their email address.
+export async function fetchNonManager(email: string) {
   try {
-    const data = await sql<CustomerField>`
-      SELECT
-        id,
-        name
-      FROM customers
-      ORDER BY name ASC
-    `;
-
-    const customers = data.rows;
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch all customers.');
-  }
-}
-
-export async function fetchFilteredCustomers(query: string) {
-  noStore();
-
-  try {
-    const data = await sql<CustomersTableType>`
-		SELECT
-		  customers.id,
-		  customers.name,
-		  customers.email,
-		  customers.image_url,
-		  COUNT(invoices.id) AS total_invoices,
-		  SUM(CASE WHEN invoices.status = 'pending' THEN invoices.amount ELSE 0 END) AS total_pending,
-		  SUM(CASE WHEN invoices.status = 'paid' THEN invoices.amount ELSE 0 END) AS total_paid
-		FROM customers
-		LEFT JOIN invoices ON customers.id = invoices.customer_id
-		WHERE
-		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
-		GROUP BY customers.id, customers.name, customers.email, customers.image_url
-		ORDER BY customers.name ASC
-	  `;
-
-    const customers = data.rows.map((customer) => ({
-      ...customer,
-      total_pending: formatCurrency(customer.total_pending),
-      total_paid: formatCurrency(customer.total_paid),
-    }));
-
-    return customers;
-  } catch (err) {
-    console.error('Database Error:', err);
-    throw new Error('Failed to fetch customer table.');
-  }
-}
-
-export async function getUser(email: string) {
-  noStore();
-
-  try {
-    const user = await sql`SELECT * FROM users WHERE email=${email}`;
-    return user.rows[0] as User;
+    const nonManager = await query(
+      `
+        SELECT *
+        FROM non_managers
+        JOIN employees USING (email)
+        WHERE email=$1;
+      `,
+      [email],
+    );
+    if (nonManager.rows.length == 0) {
+      throw new Error(
+        `No non-manager employee has the email address '${email}'`,
+      );
+    }
+    const row = nonManager.rows[0];
+    return {
+      ...row,
+      yearly_paid_time_off: Number.parseFloat(row.yearly_paid_time_off),
+      remaining_paid_time_off: Number.parseFloat(row.remaining_paid_time_off),
+    } as NonManager;
   } catch (error) {
-    console.error('Failed to fetch user:', error);
-    throw new Error('Failed to fetch user.');
+    console.error('Failed to fetch non-manager employee:', error);
+    throw new AggregateError([error], 'Failed to fetch non-manager employee.');
+  }
+}
+
+// Fetch a single manager given their email address.
+export async function fetchManager(email: string) {
+  try {
+    const manager = await query(
+      `
+        SELECT *
+        FROM managers
+        JOIN employees USING (email)
+        WHERE email=$1;
+      `,
+      [email],
+    );
+    if (manager.rows.length == 0) {
+      throw new Error(`No manager has the email address '${email}'`);
+    }
+    const row = manager.rows[0];
+    return {
+      ...row,
+      yearly_paid_time_off: Number.parseFloat(row.yearly_paid_time_off),
+      remaining_paid_time_off: Number.parseFloat(row.remaining_paid_time_off),
+    } as Manager;
+  } catch (error) {
+    console.error('Failed to fetch manager:', error);
+    throw new AggregateError([error], 'Failed to fetch manager.');
   }
 }

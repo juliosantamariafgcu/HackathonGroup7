@@ -4,8 +4,9 @@
     "build": "next build",
     "dev": "next dev",
     "start": "node_modules/next/dist/bin/next start -p $PORT",
-    "seed": "node -r dotenv/config ./scripts/seed.js",
-    "lint": "next lint"
+    "seed": "node -r dotenv/config ./scripts/seed.mjs",
+    "lint": "next lint",
+    "dangerous-drop": "node -r dotenv/config ./scripts/drop.mjs"
   },
   "dependencies": {
     "@heroicons/react": "^2.0.18",
@@ -46,6 +47,7 @@
     "eslint-config-next": "^14.0.0",
     "eslint-config-prettier": "9.0.0",
     "html-loader": "^5.0.0",
+    "pg": "^8.11.4",
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "0.5.4"
   },
