@@ -3,7 +3,7 @@
   "scripts": {
     "build": "next build",
     "dev": "next dev",
-    "start": "next start",
+    "start": "node_modules/next/dist/bin/next start -p $PORT",
     "seed": "node -r dotenv/config ./scripts/seed.js",
     "lint": "next lint"
   },
