@@ -1,6 +1,6 @@
 import pg from 'pg';
 import {} from '../app/lib/placeholder-data.js';
-const Client = pg.Client;
+const { Client } = pg;
 
 // NOTE: Objects created by this function should be dropped by `drop.mjs`.
 async function main() {
@@ -27,6 +27,8 @@ async function main() {
     );
   `);
 
+  // As the name implies, a non-manager cannot simultaneously be a manager.
+  // This invariant is not enforced by PostgreSQL itself.
   await client.query(`
     CREATE TABLE IF NOT EXISTS non_managers (
       email VARCHAR(127) PRIMARY KEY,
@@ -38,6 +40,8 @@ async function main() {
     );
   `);
 
+  // A manager cannot simultaneously be a non-manager.
+  // This invariant is not enforced by PostgreSQL itself.
   await client.query(`
     CREATE TABLE IF NOT EXISTS managers (
       email VARCHAR(127) PRIMARY KEY,
