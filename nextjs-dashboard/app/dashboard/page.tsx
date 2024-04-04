@@ -5,6 +5,8 @@ import {
     fetchLatestInvoices,
     fetchCardData,
 } from '@/app/lib/data';
+import { Suspense } from 'react';
+import { LatestInvoicesSkeleton } from '@/app/ui/skeletons';
 
 export default async function Page() {
     const latestInvoices = await fetchLatestInvoices();
@@ -21,7 +23,9 @@ export default async function Page() {
                 <Card title="Your PTO" value={totalPaidInvoices} type="collected" />
             </div>
           <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-4 lg:grid-cols-8">
-            <LatestInvoices latestInvoices={latestInvoices}/>
+            <Suspense fallback={<LatestInvoicesSkeleton />}>
+              <LatestInvoices latestInvoices={latestInvoices}/>
+            </Suspense>
           </div>
         </main>
     );
