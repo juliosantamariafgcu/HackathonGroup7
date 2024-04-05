@@ -1,29 +1,29 @@
 import Image from 'next/image';
 import { fetchEmployees } from '@/app/lib/data';
+import { Employee,} from '@/app/lib/definitions';
 
-export default async function RequestsTable({ query, currentPage, }: {
+export default async function EmployeeTable({ query, currentPage }: {
   query: string;
   currentPage: number;
 }) {
-  const allEmployees = await fetchEmployees();
-  let employeeMap = new Map(
-    allEmployees.map((employee) => [employee.email, employee]),
-  );
+  const allEmployees: Employee[] = await fetchEmployees();
 
   return (
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          <div className="mb-2 flex items-center">
-            <Image
-              src={'/customers/emil-kowalski.png'}
-              className="mr-2 rounded-full"
-              width={28}
-              height={28}
-              alt={`${employeeMap.get(request.employee_email)?.name}'s profile picture`}
-            />
-            <p>{employeeMap.get(request.employee_email)?.name}</p>
-          </div>
+          {allEmployees.map((employee) => (
+            <div key={employee.email} className="mb-2 flex items-center">
+              <Image
+                src={'/customers/emil-kowalski.png'}
+                className="mr-2 rounded-full"
+                width={28}
+                height={28}
+                alt={`${employee.name}'s profile picture`}
+              />
+              <p>{employee.name}</p>
+            </div>
+          ))}
           <table className="hidden min-w-full text-gray-900 md:table">
             <thead className="rounded-lg text-left text-sm font-normal">
             <tr>
@@ -36,6 +36,12 @@ export default async function RequestsTable({ query, currentPage, }: {
             </tr>
             </thead>
             <tbody className="bg-white">
+            {allEmployees.map((employee) => (
+              <tr key={employee.email}>
+                <td className="px-4 py-4">{employee.name}</td>
+                <td className="px-3 py-4">{employee.email}</td>
+              </tr>
+            ))}
             </tbody>
           </table>
         </div>
@@ -43,3 +49,4 @@ export default async function RequestsTable({ query, currentPage, }: {
     </div>
   );
 }
+

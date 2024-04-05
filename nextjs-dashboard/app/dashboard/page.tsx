@@ -1,13 +1,14 @@
 import { Card } from '@/app/ui/dashboard/cards';
 import { lusitana } from '@/app/ui/fonts';
 import { auth } from "../../auth"
-import { fetchEmployee, fetchEmployees } from '../lib/data';
+import { fetchEmployee, fetchEmployees } from '@/app/lib/data';
 import { Suspense } from 'react';
 import Table from '../ui/request/table';
 import { LatestInvoicesSkeleton } from '@/app/ui/skeletons';
 
-export default async function Page({searchParams,}:
-{
+export default async function Page({
+                                     searchParams,
+                                   }: {
   searchParams?: {
     query?: string;
     page?: string;
