@@ -1,6 +1,6 @@
 import Search from '@/app/ui/search';
-import Table from '@/app/ui/invoices/table';
-import { CreateRequest } from '@/app/ui/invoices/buttons';
+import Table from '@/app/ui/request/table';
+import { CreateRequest } from '@/app/ui/request/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
 import { LatestInvoicesSkeleton } from '@/app/ui/skeletons';

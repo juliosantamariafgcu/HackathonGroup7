@@ -1,9 +1,7 @@
 import Image from 'next/image';
-// import { UpdateInvoice, DeleteInvoice } from '@/app/ui/invoices/buttons';
-import RequestStatus from '@/app/ui/invoices/status';
+import RequestStatus from '@/app/ui/request/status';
 import { formatDateToLocal } from '@/app/lib/utils';
 import { fetchEmployees, fetchPendingRequests } from '@/app/lib/data';
-import { Employee } from '@/app/lib/definitions';
 
 function formatHours(hours: number) {
   const unit = hours == 1 ? 'hour' : 'hours';
@@ -59,8 +57,6 @@ export default async function RequestsTable({
                     <p>{formatDateToLocal(request.day_off)}</p>
                   </div>
                   <div className="flex justify-end gap-2">
-                    {/* <UpdateInvoice id={request.id} /> */}
-                    {/* <DeleteInvoice id={request.id} /> */}
                   </div>
                 </div>
               </div>
@@ -121,8 +117,6 @@ export default async function RequestsTable({
                   </td>
                   <td className="whitespace-nowrap py-3 pl-6 pr-3">
                     <div className="flex justify-end gap-3">
-                      {/* <UpdateInvoice id={invoice.id} /> */}
-                      {/* <DeleteInvoice id={invoice.id} /> */}
                     </div>
                   </td>
                 </tr>
