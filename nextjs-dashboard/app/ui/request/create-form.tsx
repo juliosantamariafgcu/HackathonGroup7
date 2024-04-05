@@ -18,7 +18,6 @@ export default function Form({ employee }: { employee: AnyEmployee[] }) {
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    'use server';
 
     event.preventDefault();
 
