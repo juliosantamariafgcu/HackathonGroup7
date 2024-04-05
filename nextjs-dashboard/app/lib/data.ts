@@ -1,4 +1,5 @@
 import { QueryResultRow, db, sql } from '@vercel/postgres';
+import { unstable_noStore as noStore } from 'next/cache';
 import {
   Team,
   Employee,
@@ -61,6 +62,8 @@ export async function requestTimeOff(
 }
 
 export async function fetchPendingRequests() {
+  noStore();
+
   try {
     const pendingRequests = await sql`
       SELECT *
@@ -85,6 +88,8 @@ export async function fetchPendingRequests() {
 // attribute in the database, but the `role` property is reused and equals
 // 'Manager' for all managers returned by this function.
 export async function fetchEmployees() {
+  noStore();
+
   try {
     const employees = await query(`
       (
@@ -114,6 +119,8 @@ export async function fetchEmployees() {
 
 // Fetch a single generic employee given their email address.
 export async function fetchEmployee(email: string) {
+  noStore();
+
   try {
     const employee = await query(`SELECT * FROM employees WHERE email=$1;`, [
       email,
@@ -135,6 +142,8 @@ export async function fetchEmployee(email: string) {
 
 // Fetch a single non-manager employee given their email address.
 export async function fetchNonManager(email: string) {
+  noStore();
+
   try {
     const nonManager = await query(
       `
@@ -164,6 +173,8 @@ export async function fetchNonManager(email: string) {
 
 // Fetch a single manager given their email address.
 export async function fetchManager(email: string) {
+  noStore();
+
   try {
     const manager = await query(
       `
@@ -191,6 +202,8 @@ export async function fetchManager(email: string) {
 
 // Add a team to the database.
 export async function addTeam(team: Team) {
+  noStore();
+
   try {
     const result = await query('INSERT INTO teams VALUES ($1, $2);', [
       team.name,
@@ -208,6 +221,8 @@ export async function addTeam(team: Team) {
 // Add an employee to the database.
 // The employee should be made into a manager or non-manager later.
 export async function addEmployee(employee: Employee) {
+  noStore();
+
   try {
     const result = await query(
       `
@@ -233,6 +248,8 @@ export async function addEmployee(employee: Employee) {
 
 // Add a non-manager employee to the database.
 export async function addNonManager(nonManager: NonManager) {
+  noStore();
+
   const client = await getClient();
   try {
     await query('BEGIN');
@@ -271,6 +288,8 @@ export async function addNonManager(nonManager: NonManager) {
 
 // Add a manager to the database.
 export async function addManager(manager: Manager) {
+  noStore();
+
   const client = await getClient();
   try {
     await query('BEGIN');
