@@ -2,9 +2,13 @@ import Form from '@/app/ui/request/create-form';
 import Breadcrumbs from '@/app/ui/request/breadcrumbs';
 import { fetchEmployees } from '@/app/lib/data';
 import { AnyEmployee } from '@/app/lib/definitions';
-export async function Page() {
-  const employee: AnyEmployee[] = await fetchEmployees();
+import { NextPage } from 'next';
 
+interface Props {
+  employee: AnyEmployee[];
+}
+
+const CreateRequestPage: NextPage<Props> = ({ employee }) => {
   return (
     <main>
       <Breadcrumbs
@@ -20,4 +24,17 @@ export async function Page() {
       <Form employee={employee} />
     </main>
   );
+};
+
+export default CreateRequestPage;
+
+export async function getServerSideProps() {
+  const employee: AnyEmployee[] = await fetchEmployees();
+
+  return {
+    props: {
+      employee,
+    },
+  };
 }
+
