@@ -10,7 +10,7 @@ export default function Form() {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createRequest, initialState);
 
-  const [selectedDate, setSelectedDate] = useState<string>(''); // Set the type as string
+  const [selectedDate, setSelectedDate] = useState<string>('Monday'); // Set the type as string
 
   const handleDateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedDate(event.target.value);
@@ -21,7 +21,7 @@ export default function Form() {
     event.preventDefault();
 
     const formData = new FormData();
-    formData.append('amount', event.currentTarget.amount.value);
+    formData.append('hours', event.currentTarget.hours.value);
     formData.append('reason', event.currentTarget.reason.value);
     formData.append('date', selectedDate);
 
@@ -40,18 +40,18 @@ export default function Form() {
     <form onSubmit={handleSubmit}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
 
-        {/* Request Amount */}
+        {/* Request Hours */}
         <div className="mb-4">
-          <label htmlFor="amount" className="mb-2 block text-sm font-medium">
-            Choose an amount of hours
+          <label htmlFor="hours" className="mb-2 block text-sm font-medium">
+            Enter number of hours
           </label>
           <div className="relative mt-2 rounded-md">
             <div className="relative">
               <input
-                id="amount"
-                name="amount"
+                id="hours"
+                name="hours"
                 type="number"
-                placeholder="Enter hour(s) amount"
+                placeholder="Enter number of hours"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 required
               />
@@ -109,7 +109,7 @@ export default function Form() {
                 onChange={handleDateChange}
               >
                 {/* Options for current week dates */}
-                <option value="Monday">Monday</option>
+                <option value="Monday" selected>Monday</option>
                 <option value="Tuesday">Tuesday</option>
                 <option value="Wednesday">Wednesday</option>
                 <option value="Thursday">Thursday</option>

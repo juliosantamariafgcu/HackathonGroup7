@@ -1,10 +1,11 @@
 'use server';
-import { signIn } from '@/auth';
+import { auth, signIn } from '@/auth';
 import { sql } from '@vercel/postgres';
 import { AuthError } from 'next-auth';
 import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { requestTimeOff } from './data';
 
 const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] as const;
 const FormSchema = z.object({
@@ -29,6 +30,10 @@ export type State = {
 const CreateRequest = FormSchema.omit({ id: true });
 
 export async function createRequest(prevState: State, formData: FormData) {
+  const session = await auth();
+  if (!session?.user?.email) {
+    return { message: 'Unauthenticated. Failed to Create Request.' };
+  }
 
   const validatedFields = CreateRequest.safeParse({
     hours: formData.get('hours'),
@@ -44,17 +49,27 @@ export async function createRequest(prevState: State, formData: FormData) {
   }
 
   const { reason, hours, date} = validatedFields.data;
+  // To match `getDay`, Monday should have an index of one.
+  const dayOfWeek = daysOfWeek.indexOf(date) + 1;
+  const dayOff = new Date();
+  const difference = dayOfWeek - dayOff.getDay();
+  // If the selected day of the week has already passed, select the same day next week.
+  dayOff.setDate(dayOff.getDate() + (difference < 0 ? difference + 7 : difference));
+  dayOff.setUTCFullYear(dayOff.getFullYear(), dayOff.getMonth(), dayOff.getDate());
+  dayOff.setUTCHours(0, 0, 0, 0);
 
   // Insert data into the database
   try {
-    await sql`
-      INSERT INTO request (employee_email, made_on, reason, date_off, hours_off)
-      VALUES (user, current_date, ${reason}, ${date}, ${hours})
-    `;
+    await requestTimeOff({
+      reason: reason,
+      employee_email: session.user.email,
+      day_off: dayOff,
+      hours_off: hours,
+    });
   } catch (error) {
     // If a database error occurs, return a more specific error.
     return {
-      message: 'Database Error: Failed to Create request.',
+      message: 'Database Error: Failed to Create Request.',
     };
   }
 
