@@ -3,12 +3,11 @@ import Table from '@/app/ui/invoices/table';
 import { CreateRequest } from '@/app/ui/invoices/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
-import { InvoicesTableSkeleton } from '@/app/ui/skeletons';
-import { fetchPendingRequests } from '@/app/lib/data';
+import { RequestsTableSkeleton } from '@/app/ui/skeletons';
 
 export default async function Page({
-                                     searchParams,
-                                   }: {
+  searchParams,
+}: {
   searchParams?: {
     query?: string;
     page?: string;
@@ -26,7 +25,7 @@ export default async function Page({
         <Search placeholder="Search Requests..." />
         <CreateRequest />
       </div>
-      <Suspense key={query + currentPage} fallback={<InvoicesTableSkeleton />}>
+      <Suspense key={query + currentPage} fallback={<RequestsTableSkeleton />}>
         <Table query={query} currentPage={currentPage} />
       </Suspense>
     </div>
