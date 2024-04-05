@@ -83,6 +83,7 @@ export default function Form({ employee }: { employee: AnyEmployee[] }) {
                 <option value="Health">Health</option>
                 <option value="Personal">Personal</option>
                 <option value="Vacation">Vacation</option>
+                <option value="Jury Duty">Other</option>
                 <option value="Other">Other</option>
               </select>
             </div>
