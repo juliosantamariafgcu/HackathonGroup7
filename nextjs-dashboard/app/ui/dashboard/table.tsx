@@ -12,18 +12,6 @@ export default async function EmployeeTable({ query, currentPage }: {
     <div className="mt-6 flow-root">
       <div className="inline-block min-w-full align-middle">
         <div className="rounded-lg bg-gray-50 p-2 md:pt-0">
-          {allEmployees.map((employee) => (
-            <div key={employee.email} className="mb-2 flex items-center">
-              <Image
-                src={'/customers/emil-kowalski.png'}
-                className="mr-2 rounded-full"
-                width={28}
-                height={28}
-                alt={`${employee.name}'s profile picture`}
-              />
-              <p>{employee.name}</p>
-            </div>
-          ))}
           <table className="hidden min-w-full text-gray-900 md:table">
             <thead className="rounded-lg text-left text-sm font-normal">
             <tr>
