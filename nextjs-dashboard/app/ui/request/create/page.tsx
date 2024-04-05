@@ -21,7 +21,7 @@ export default async function Page() {
           { label: 'Request', href: '/dashboard/request' },
           {
             label: 'Create Request',
-            href: '/dashboard/request',
+            href: '/dashboard/request/create',
             active: true,
           },
         ]}

@@ -1,5 +1,4 @@
 'use client';
-import {AnyEmployee, Employee } from '@/app/lib/definitions';
 import Link from 'next/link';
 import { ClockIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
@@ -7,7 +6,7 @@ import { useFormState } from 'react-dom';
 import { createRequest } from '@/app/lib/actions';
 import { SetStateAction, useState} from 'react';
 
-export default function Form({ employee }: { employee: AnyEmployee[] }) {
+export default function Form() {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createRequest, initialState);
 
