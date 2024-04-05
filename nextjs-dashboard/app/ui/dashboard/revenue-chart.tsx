@@ -1,4 +1,4 @@
-import { generateYAxis } from '@/app/lib/utils';
+{/*import { generateYAxis } from '@/app/lib/utils';
 import { CalendarIcon } from '@heroicons/react/24/outline';
 import { lusitana } from '@/app/ui/fonts';
 import { Revenue } from '@/app/lib/definitions';
@@ -28,9 +28,9 @@ export default async function ScheduleChart({
       <h2 className={`${lusitana.className} mb-4 text-xl md:text-2xl`}>
         Week Hours
       </h2>
-      {/* NOTE: comment in this code when you get to this point in the course */}
+      /* NOTE: comment in this code when you get to this point in the course */}
 
-      <div className="rounded-xl bg-gray-50 p-4">
+{/*<div className="rounded-xl bg-gray-50 p-4">
         <div className="mt-0 grid grid-cols-12 items-end gap-2 rounded-md bg-white p-4 sm:grid-cols-13 md:gap-4">
           <div
             className="mb-6 hidden flex-col justify-between text-sm text-gray-400 sm:flex"
@@ -62,4 +62,4 @@ export default async function ScheduleChart({
       </div>
     </div>
   );
-}
+}*/}
