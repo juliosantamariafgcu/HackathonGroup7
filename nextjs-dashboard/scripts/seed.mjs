@@ -1,5 +1,10 @@
 import { db } from '@vercel/postgres';
-import { teams, employees, requests } from '../app/lib/placeholder-data.js';
+import {
+  teams,
+  employees,
+  requests,
+  schedules,
+} from '../app/lib/placeholder-data.js';
 import * as bcrypt from 'bcrypt-ts';
 
 // Add teams from the placeholder data file.
@@ -114,12 +119,7 @@ async function seedRequests(client) {
 }
 
 // NOTE: Objects created by this function should be dropped by `drop.mjs`.
-async function main() {
-  const client = await db.connect();
-
-  await seedTeams(client);
-  await seedEmployees(client);
-
+async function seedSchedules(client) {
   await client.sql`
     CREATE TABLE IF NOT EXISTS schedules (
       employee_email VARCHAR(127) NOT NULL,
@@ -136,6 +136,29 @@ async function main() {
     );
   `;
 
+  for (const schedule of schedules) {
+    await client.sql`
+      INSERT INTO schedules
+      VALUES (
+        ${schedule.employee_email},
+        ${schedule.iso_8601_week},
+        ${schedule.monday_hours},
+        ${schedule.tuesday_hours},
+        ${schedule.wednesday_hours},
+        ${schedule.thursday_hours},
+        ${schedule.friday_hours}
+      );
+    `;
+  }
+}
+
+// NOTE: Objects created by this function should be dropped by `drop.mjs`.
+async function main() {
+  const client = await db.connect();
+
+  await seedTeams(client);
+  await seedEmployees(client);
+  await seedSchedules(client);
   await seedRequests(client);
 
   await client.release();
