@@ -31,27 +31,24 @@ async function query<R extends QueryResultRow = any, I extends any[] = any[]>(
 
 // Request hours off for an employee given their email address.
 export async function requestTimeOff(
-  request: Omit<Request, 'made_on' | 'status'>,
+  request: Omit<Request, 'made_on' | 'status' | 'name'>,
 ) {
   const client = await getClient();
   try {
-    await query('BEGIN');
-    await query(
-      `
+    await client.sql`BEGIN`;
+    await client.sql`
       INSERT INTO requests (employee_email, made_on, reason, day_off, hours_off)
-      VALUES ($1, $2, $3, $4, $5);
-      `,
-      [
-        request.employee_email,
-        'FIXME',
-        request.reason,
-        'FIXME',
-        request.hours_off,
-      ],
-    );
-    await query('COMMIT');
+      VALUES (
+        ${request.employee_email},
+        ${new Date().toISOString()},
+        ${request.reason},
+        ${request.day_off.toISOString().split('T')[0]},
+        ${request.hours_off}
+      );
+    `;
+    await client.sql`COMMIT`;
   } catch (error) {
-    await client.query('ROLLBACK');
+    await client.sql`ROLLBACK`;
     const { employee_email: email } = request;
     console.error(`Failed to request time off for '${email}':`, error);
     throw new AggregateError(
