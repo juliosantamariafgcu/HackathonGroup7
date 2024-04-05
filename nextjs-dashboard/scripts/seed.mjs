@@ -1,12 +1,9 @@
 import { db } from '@vercel/postgres';
-import { teams, employees } from '../app/lib/placeholder-data.js';
+import { teams, employees, requests } from '../app/lib/placeholder-data.js';
 import * as bcrypt from 'bcrypt-ts';
 
-/**
- * Add teams from the placeholder data file.
- * NOTE: Objects created by this function should be dropped by `drop.mjs`.
- * @param {VercelPoolClient} client
- */
+// Add teams from the placeholder data file.
+// NOTE: Objects created by this function should be dropped by `drop.mjs`.
 async function seedTeams(client) {
   await client.sql`
     CREATE TABLE IF NOT EXISTS teams (
@@ -20,11 +17,8 @@ async function seedTeams(client) {
   }
 }
 
-/**
- * Add different types of employees from the placeholder data file.
- * NOTE: Objects created by this function should be dropped by `drop.mjs`.
- * @param {VercelPoolClient} client
- */
+// Add different types of employees from the placeholder data file.
+// NOTE: Objects created by this function should be dropped by `drop.mjs`.
 async function seedEmployees(client) {
   // NOTE: Passwords must be salted and hashed using bcrypt.
   await client.sql`
@@ -89,6 +83,37 @@ async function seedEmployees(client) {
 }
 
 // NOTE: Objects created by this function should be dropped by `drop.mjs`.
+async function seedRequests(client) {
+  await client.sql`
+    CREATE TABLE IF NOT EXISTS requests (
+      employee_email VARCHAR(127) NOT NULL,
+      made_on TIMESTAMPTZ NOT NULL,
+      reason VARCHAR(255) NOT NULL,
+      day_off DATE NOT NULL,
+      hours_off NUMERIC(4, 2) NOT NULL,
+      status TEXT DEFAULT 'Pending' NOT NULL,
+      PRIMARY KEY (employee_email, made_on),
+      FOREIGN KEY (employee_email) REFERENCES employees (email),
+      CHECK (status IN ('Pending', 'Approved', 'Rejected'))
+    );
+  `;
+
+  for (const request of requests) {
+    await client.sql`
+      INSERT INTO requests
+      VALUES (
+        ${request.employee_email},
+        ${request.made_on.toISOString()},
+        ${request.reason},
+        ${request.day_off.toISOString().split('T')[0]},
+        ${request.hours_off},
+        ${request.status}
+      );
+    `;
+  }
+}
+
+// NOTE: Objects created by this function should be dropped by `drop.mjs`.
 async function main() {
   const client = await db.connect();
 
@@ -111,19 +136,7 @@ async function main() {
     );
   `;
 
-  await client.sql`
-    CREATE TABLE IF NOT EXISTS requests (
-      employee_email VARCHAR(127) NOT NULL,
-      made_on TIMESTAMP NOT NULL,
-      reason VARCHAR(255) NOT NULL,
-      day_off DATE NOT NULL,
-      hours_off NUMERIC(4, 2) NOT NULL,
-      status TEXT DEFAULT 'Pending' NOT NULL,
-      PRIMARY KEY (employee_email, made_on),
-      FOREIGN KEY (employee_email) REFERENCES employees (email),
-      CHECK (status IN ('Pending', 'Approved', 'Rejected'))
-    );
-  `;
+  await seedRequests(client);
 
   await client.release();
 }

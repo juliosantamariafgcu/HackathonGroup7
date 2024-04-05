@@ -59,4 +59,23 @@ const employees = [
   }),
 ];
 
-module.exports = { teams, employees };
+const requests = [
+  Object.freeze({
+    employee_email: 'alice.jones@example.com',
+    made_on: new Date(),
+    reason: '',
+    day_off: new Date('2024-04-10'),
+    hours_off: 1,
+    status: 'Pending',
+  }),
+  Object.freeze({
+    employee_email: 'jane.doe@example.com',
+    made_on: new Date(),
+    reason: '',
+    day_off: new Date('2024-04-05'),
+    hours_off: 4,
+    status: 'Pending',
+  }),
+];
+
+module.exports = { teams, employees, requests };
