@@ -1,5 +1,5 @@
 import Search from '@/app/ui/search';
-import Table from '@/app/ui/request/table';
+import Table from '@/app/ui/dashboard/table';
 import { CreateRequest } from '@/app/ui/request/buttons';
 import { lusitana } from '@/app/ui/fonts';
 import { Suspense } from 'react';
