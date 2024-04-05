@@ -33,7 +33,7 @@ export default function Page() {
                              dataSource={categoryData} textField='text' idField='id' colorField='color'>
           </ResourceDirective>
         </ResourcesDirective>
-        <Inject services={[Agenda, Resize, DragAndDrop]} />
+        <Inject services={[Week, Agenda, Resize, DragAndDrop]} />
       </ScheduleComponent>
     </>
   )
