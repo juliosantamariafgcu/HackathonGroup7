@@ -1,4 +1,4 @@
-import { QueryResultRow, db } from '@vercel/postgres';
+import { QueryResultRow, db, sql } from '@vercel/postgres';
 import {
   Team,
   Employee,
@@ -60,8 +60,24 @@ export async function requestTimeOff(
   }
 }
 
-// FIXME(Daniel): Implement this.
-export async function fetchPendingRequests() {}
+export async function fetchPendingRequests() {
+  try {
+    const pendingRequests = await sql`
+      SELECT *
+      FROM requests
+      WHERE status = 'Pending';
+    `;
+    return pendingRequests.rows.map((request) => ({
+      ...request,
+      made_on: new Date(request.made_on),
+      day_off: new Date(request.day_off),
+      hours_off: Number.parseFloat(request.hours_off),
+    })) as Request[];
+  } catch (error) {
+    console.error('Failed to fetch pending requests:', error);
+    throw new AggregateError([error], 'Failed to fetch pending requests.');
+  }
+}
 
 // Fetch all employees. Different types of employees can be differentiated by
 // examining the `role` property. Each non-manager employees always has a
