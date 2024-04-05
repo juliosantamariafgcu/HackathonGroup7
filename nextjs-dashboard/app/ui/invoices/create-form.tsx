@@ -1,5 +1,5 @@
 'use client';
-import { CustomerField } from '@/app/lib/definitions';
+import {Employee } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
   CheckIcon,
@@ -11,32 +11,32 @@ import { Button } from '@/app/ui/button';
 import { useFormState } from 'react-dom';
 import { createInvoice } from '@/app/lib/actions';
 
-export default function Form({ customers }: { customers: CustomerField[] }) {
+export default function Form({ employee }: { employee: Employee[] }) {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createInvoice, initialState);
 
   return (
     <form action={dispatch}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Customer Name */}
+        {/* Employee Name */}
         <div className="mb-4">
-          <label htmlFor="customer" className="mb-2 block text-sm font-medium">
-            Choose customer
+          <label htmlFor="employee" className="mb-2 block text-sm font-medium">
+            Choose Employee
           </label>
           <div className="relative">
             <select
-              id="customer"
-              name="customerId"
+              id="employee"
+              name="employeeEmail"
               className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               defaultValue=""
-              aria-describedby="customer-error"
+              aria-describedby="employee-error"
             >
               <option value="" disabled>
-                Select a customer
+                Select a Employee
               </option>
-              {customers.map((customer) => (
-                <option key={customer.id} value={customer.id}>
-                  {customer.name}
+              {employee.map((employee) => (
+                <option key={employee.email} value={employee.email}>
+                  {employee.name}
                 </option>
               ))}
             </select>
@@ -56,7 +56,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         {/* Invoice Amount */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
-            Choose an amount
+            Choose an amount of hours
           </label>
           <div className="relative mt-2 rounded-md">
             <div className="relative">
@@ -64,7 +64,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 id="amount"
                 name="amount"
                 type="number"
-                placeholder="Enter USD amount"
+                placeholder="Enter hour(s) amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 required
               />
@@ -74,10 +74,10 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
           </div>
         </div>
 
-        {/* Invoice Status */}
+        {/* Request Status */}
         <fieldset>
           <legend className="mb-2 block text-sm font-medium">
-            Set the invoice status
+            Set the request status
           </legend>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="flex gap-4">
@@ -98,17 +98,17 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               </div>
               <div className="flex items-center">
                 <input
-                  id="paid"
+                  id="approved"
                   name="status"
                   type="radio"
-                  value="paid"
+                  value="approved"
                   className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
                 />
                 <label
-                  htmlFor="paid"
+                  htmlFor="approved"
                   className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white"
                 >
-                  Paid <CheckIcon className="h-4 w-4"/>
+                  Approved <CheckIcon className="h-4 w-4"/>
                 </label>
               </div>
             </div>
@@ -122,7 +122,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         >
           Cancel
         </Link>
-        <Button type="submit">Create Invoice</Button>
+        <Button type="submit">Create Request</Button>
       </div>
     </form>
   );

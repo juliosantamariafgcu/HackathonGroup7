@@ -1,4 +1,5 @@
 // This file contains type definitions for your data.
+
 // It describes the shape of the data, and what data type each property should accept.
 export type Team = {
   name: string;
@@ -40,6 +41,7 @@ export type Schedule = {
 };
 
 export type Request = {
+  name: string;
   employee_email: string;
   made_on: Date;
   reason: string;
