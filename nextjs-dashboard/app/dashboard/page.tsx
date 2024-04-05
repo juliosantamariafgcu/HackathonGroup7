@@ -2,11 +2,16 @@ import { Card } from '@/app/ui/dashboard/cards';
 import { lusitana } from '@/app/ui/fonts';
 import { auth } from "../../auth"
 import { Employee } from '../lib/definitions';
+import { fetchEmployee } from '../lib/data';
 
 export default async function Page() {
-    const session = await auth();
-    const userPTOremaining = (session?.user as Employee | null)?.remaining_paid_time_off ?? null;
-  const userPTOyearly = (session?.user as Employee | null)?.yearly_paid_time_off ?? null;
+  const session = await auth();
+  if (!session?.user?.email) {
+    throw new Error("Users must be signed in to view the dashboard.\n" + "This is enforced by 'auth.config.ts'.");
+  }
+  const employee = await fetchEmployee(session.user.email);
+  const userPTOremaining = employee.remaining_paid_time_off;
+  const userPTOyearly = employee.yearly_paid_time_off;
 
   return (
     <main>
