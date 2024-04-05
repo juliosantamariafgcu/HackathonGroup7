@@ -17,7 +17,6 @@ export default function Form() {
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    'use server';
 
     event.preventDefault();
 
