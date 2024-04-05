@@ -6,12 +6,13 @@ import { z } from 'zod';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"] as const;
 const FormSchema = z.object({
   id: z.string(),
   reason: z.string({
     invalid_type_error: 'Please select a reason.',
   }),
-  date: z.string(),
+  date: z.enum(daysOfWeek),
   hours: z.coerce
     .number()
     .gt(0, { message: 'Please enter an amount greater than 0 hours.' })
