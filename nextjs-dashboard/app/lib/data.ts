@@ -31,6 +31,7 @@ async function query<R extends QueryResultRow = any, I extends any[] = any[]>(
 }
 
 // Request hours off for an employee given their email address.
+// NOTE: The year, month, and day are taken from `request.day_off` in UTC.
 export async function requestTimeOff(
   request: Omit<Request, 'made_on' | 'status' | 'name'>,
 ) {
@@ -61,6 +62,7 @@ export async function requestTimeOff(
   }
 }
 
+// `day_off` is represented by `Date` at midnight local time, not midnight UTC.
 export async function fetchPendingRequests() {
   noStore();
 
@@ -72,8 +74,6 @@ export async function fetchPendingRequests() {
     `;
     return pendingRequests.rows.map((request) => ({
       ...request,
-      made_on: new Date(request.made_on),
-      day_off: new Date(request.day_off),
       hours_off: Number.parseFloat(request.hours_off),
     })) as Request[];
   } catch (error) {

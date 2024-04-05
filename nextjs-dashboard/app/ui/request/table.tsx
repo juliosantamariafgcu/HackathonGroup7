@@ -5,7 +5,7 @@ import { fetchEmployees, fetchPendingRequests } from '@/app/lib/data';
 
 function formatHours(hours: number) {
   const unit = hours == 1 ? 'hour' : 'hours';
-  return hours + unit;
+  return hours + ' ' + unit;
 }
 
 export default async function RequestsTable({
