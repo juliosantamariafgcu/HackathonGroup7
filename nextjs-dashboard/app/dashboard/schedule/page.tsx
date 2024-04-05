@@ -20,7 +20,7 @@ export default function Page() {
   return (
     <>
       <h2>Schedule</h2>
-      <ScheduleComponent width='100%' height='550px' currentView='Month' selectedDate={new Date(2018, 3, 4)} eventSettings={eventSettings} group={group} >
+      <ScheduleComponent width='100%' height='550px' currentView='Month' selectedDate={new Date(2024, 3, 5)} eventSettings={eventSettings} group={group} >
         <ViewsDirective>
           <ViewDirective option='Agenda' />
         </ViewsDirective>

@@ -1,59 +1,46 @@
 'use client';
-import {AnyEmployee } from '@/app/lib/definitions';
+import {AnyEmployee, Employee } from '@/app/lib/definitions';
 import Link from 'next/link';
-import {
-  CheckIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  UserCircleIcon,
-} from '@heroicons/react/24/outline';
+import { ClockIcon } from '@heroicons/react/24/outline';
 import { Button } from '@/app/ui/button';
 import { useFormState } from 'react-dom';
-import { createInvoice } from '@/app/lib/actions';
+import { createRequest } from '@/app/lib/actions';
+import { SetStateAction, useState} from 'react';
 
 export default function Form({ employee }: { employee: AnyEmployee[] }) {
   const initialState = { message: null, errors: {} };
-  const [state, dispatch] = useFormState(createInvoice, initialState);
+  const [state, dispatch] = useFormState(createRequest, initialState);
+
+  const [selectedDate, setSelectedDate] = useState<string>(''); // Set the type as string
+
+  const handleDateChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedDate(event.target.value);
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const formData = new FormData();
+    formData.append('amount', event.currentTarget.amount.value);
+    formData.append('reason', event.currentTarget.reason.value);
+    formData.append('date', selectedDate);
+
+    const result = await createRequest({ errors: {}, message: null }, formData);
+
+    if (result.errors) {
+      console.log('Validation errors:', result.errors);
+    } else if (result.message) {
+      console.log('Message:', result.message);
+    } else {
+      console.log('Request created successfully');
+    }
+  };
 
   return (
-    <form action={dispatch}>
+    <form onSubmit={handleSubmit}>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
-        {/* Employee Name */}
-        <div className="mb-4">
-          <label htmlFor="employee" className="mb-2 block text-sm font-medium">
-            Choose Employee
-          </label>
-          <div className="relative">
-            <select
-              id="employee"
-              name="employeeEmail"
-              className="peer block w-full cursor-pointer rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue=""
-              aria-describedby="employee-error"
-            >
-              <option value="" disabled>
-                Select a Employee
-              </option>
-              {employee.map((employee) => (
-                <option key={employee.email} value={employee.email}>
-                  {employee.name}
-                </option>
-              ))}
-            </select>
-            <UserCircleIcon
-              className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500"/>
-          </div>
-          <div id="customer-error" aria-live="polite" aria-atomic="true">
-            {state.errors?.customerId &&
-              state.errors.customerId.map((error: string) => (
-                <p className="mt-2 text-sm text-red-500" key={error}>
-                  {error}
-                </p>
-              ))}
-          </div>
-        </div>
 
-        {/* Invoice Amount */}
+        {/* Request Amount */}
         <div className="mb-4">
           <label htmlFor="amount" className="mb-2 block text-sm font-medium">
             Choose an amount of hours
@@ -68,56 +55,76 @@ export default function Form({ employee }: { employee: AnyEmployee[] }) {
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
                 required
               />
-              <CurrencyDollarIcon
+              <ClockIcon
                 className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900"/>
             </div>
           </div>
         </div>
 
-        {/* Request Status */}
+        {/* Reason Selection */}
         <fieldset>
           <legend className="mb-2 block text-sm font-medium">
-            Set the request status
+            Set the reason
           </legend>
           <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
             <div className="flex gap-4">
-              <div className="flex items-center">
-                <input
-                  id="pending"
-                  name="status"
-                  type="radio"
-                  value="pending"
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                />
-                <label
-                  htmlFor="pending"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
-                >
-                  Pending <ClockIcon className="h-4 w-4"/>
-                </label>
-              </div>
-              <div className="flex items-center">
-                <input
-                  id="approved"
-                  name="status"
-                  type="radio"
-                  value="approved"
-                  className="h-4 w-4 cursor-pointer border-gray-300 bg-gray-100 text-gray-600 focus:ring-2"
-                />
-                <label
-                  htmlFor="approved"
-                  className="ml-2 flex cursor-pointer items-center gap-1.5 rounded-full bg-green-500 px-3 py-1.5 text-xs font-medium text-white"
-                >
-                  Approved <CheckIcon className="h-4 w-4"/>
-                </label>
-              </div>
+              <label
+                htmlFor="reason"
+                className="flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
+              >
+                Select a reason:
+              </label>
+              <select
+                id="reason"
+                name="reason"
+                className="border-gray-300 bg-gray-100 text-gray-600 focus:ring-2 px-2 py-1 rounded-md"
+              >
+                <option value="Health">Health</option>
+                <option value="Personal">Personal</option>
+                <option value="Vacation">Vacation</option>
+                <option value="Other">Other</option>
+              </select>
             </div>
           </div>
         </fieldset>
+
+        {/* Date Selection */}
+        <fieldset>
+          <legend className="mb-2 block text-sm font-medium">
+            Select a date in the current week
+          </legend>
+          <div className="rounded-md border border-gray-200 bg-white px-[14px] py-3">
+            <div className="flex gap-4">
+              <label
+                htmlFor="selectedDate"
+                className="flex items-center gap-1.5 rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-600"
+              >
+                Select a date:
+              </label>
+              <select
+                id="selectedDate"
+                name="selectedDate"
+                className="border-gray-300 bg-gray-100 text-gray-600 focus:ring-2 px-2 py-1 rounded-md"
+                value={selectedDate}
+                onChange={handleDateChange}
+              >
+                {/* Options for current week dates */}
+                <option>
+                  <option value="Monday">Monday</option>
+                  <option value="Tuesday">Tuesday</option>
+                  <option value="Wednesday">Wednesday</option>
+                  <option value="Thursday">Thursday</option>
+                  <option value="Friday">Friday</option>
+                </option>
+              </select>
+            </div>
+          </div>
+        </fieldset>
+
       </div>
       <div className="mt-6 flex justify-end gap-4">
         <Link
-          href="/dashboard/invoices"
+          href="/dashboard/request"
           className="flex h-10 items-center rounded-lg bg-gray-100 px-4 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-200"
         >
           Cancel
