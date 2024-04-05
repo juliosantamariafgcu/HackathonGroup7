@@ -1,5 +1,5 @@
 'use client';
-import {Employee } from '@/app/lib/definitions';
+import {AnyEmployee } from '@/app/lib/definitions';
 import Link from 'next/link';
 import {
   CheckIcon,
@@ -11,7 +11,7 @@ import { Button } from '@/app/ui/button';
 import { useFormState } from 'react-dom';
 import { createInvoice } from '@/app/lib/actions';
 
-export default function Form({ employee }: { employee: Employee[] }) {
+export default function Form({ employee }: { employee: AnyEmployee[] }) {
   const initialState = { message: null, errors: {} };
   const [state, dispatch] = useFormState(createInvoice, initialState);
 

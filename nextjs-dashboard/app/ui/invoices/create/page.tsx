@@ -1,27 +1,10 @@
 import Form from '@/app/ui/invoices/create-form';
 import Breadcrumbs from '@/app/ui/invoices/breadcrumbs';
 import { fetchEmployees } from '@/app/lib/data';
-import { Employee } from '@/app/lib/definitions';
+import { AnyEmployee } from '@/app/lib/definitions';
+export async function Page() {
+  const employee: AnyEmployee[] = await fetchEmployees();
 
-export async function getServerSideProps() {
-  try {
-    const fetchedEmployees = await fetchEmployees();
-    return {
-      props: {
-        employee: fetchedEmployees,
-      },
-    };
-  } catch (error) {
-    console.error('Error fetching employees:', error);
-    return {
-      props: {
-        employee: [],
-      },
-    };
-  }
-}
-
-export default function Page({ employee }: { employee: Employee[] }) {
   return (
     <main>
       <Breadcrumbs
