@@ -202,8 +202,6 @@ export async function fetchManager(email: string) {
 
 // Add a team to the database.
 export async function addTeam(team: Team) {
-  noStore();
-
   try {
     const result = await query('INSERT INTO teams VALUES ($1, $2);', [
       team.name,
@@ -221,8 +219,6 @@ export async function addTeam(team: Team) {
 // Add an employee to the database.
 // The employee should be made into a manager or non-manager later.
 export async function addEmployee(employee: Employee) {
-  noStore();
-
   try {
     const result = await query(
       `
@@ -248,8 +244,6 @@ export async function addEmployee(employee: Employee) {
 
 // Add a non-manager employee to the database.
 export async function addNonManager(nonManager: NonManager) {
-  noStore();
-
   const client = await getClient();
   try {
     await query('BEGIN');
@@ -288,8 +282,6 @@ export async function addNonManager(nonManager: NonManager) {
 
 // Add a manager to the database.
 export async function addManager(manager: Manager) {
-  noStore();
-
   const client = await getClient();
   try {
     await query('BEGIN');
