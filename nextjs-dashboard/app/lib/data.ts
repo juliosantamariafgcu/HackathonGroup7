@@ -200,6 +200,36 @@ export async function fetchManager(email: string) {
   }
 }
 
+/**
+ * Fetch all teams from the database.
+ */
+export async function fetchTeams() {
+  noStore();
+
+  try {
+    const result = await sql`SELECT * FROM teams;`;
+    return result.rows as Team[];
+  } catch (error) {
+    console.error('Failed to fetch teams:', error);
+    throw new AggregateError([error], 'Failed to fetch teams.');
+  }
+}
+
+/**
+ * Fetch all schedules from the database.
+ */
+export async function fetchSchedules() {
+  noStore();
+
+  try {
+    const result = await sql`SELECT * FROM schedules;`;
+    return result.rows as Schedule[];
+  } catch (error) {
+    console.error('Failed to fetch schedules:', error);
+    throw new AggregateError([error], 'Failed to fetch schedules.');
+  }
+}
+
 // Add a team to the database.
 export async function addTeam(team: Team) {
   try {
