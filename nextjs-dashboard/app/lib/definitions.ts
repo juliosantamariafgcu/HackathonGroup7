@@ -38,7 +38,6 @@ export type Schedule = {
 };
 
 export type Request = {
-  name: string;
   employee_email: string;
   made_on: Date;
   reason: string;
