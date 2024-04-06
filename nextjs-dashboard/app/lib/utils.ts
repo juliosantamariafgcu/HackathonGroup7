@@ -88,19 +88,12 @@ function weeksToMilliseconds(weeks: number) {
 
 /**
  * Generate a random color based on `string`.
- * Based on https://stackoverflow.com/a/16348977.
+ * Based on https://stackoverflow.com/a/66494926.
  * @returns A 6-digit hex color code
  */
 export function uniqueColorFromString(string: string) {
-  let hash = 0;
-  for (let i = 0; i < string.length; ++i) {
-    const char = string.charCodeAt(i);
-    hash = char + ((hash << 5) - hash);
-  }
-  let color = '#';
-  for (let i = 0; i < 3; i++) {
-    const channel = (hash >> (i * 8)) & 255;
-    color += channel.toString(16).padStart(2, '0');
-  }
-  return color;
+  const hash = string.split('').reduce((hash, char) => {
+    return char.charCodeAt(0) + ((hash << 5) - hash);
+  }, 0);
+  return `hsl(${hash % 360}, 80%, 35%)`;
 }
