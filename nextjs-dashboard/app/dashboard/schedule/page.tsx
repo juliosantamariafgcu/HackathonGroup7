@@ -1,6 +1,6 @@
 'use client'
 import {
-  WorkWeek, Agenda, ScheduleComponent, ViewsDirective, ViewDirective, EventSettingsModel, ResourcesDirective, ResourceDirective, Inject
+  WorkWeek, Agenda, ScheduleComponent, ViewsDirective, ViewDirective, EventSettingsModel, ResourcesDirective, ResourceDirective, Inject, Day
 } from '@syncfusion/ej2-react-schedule';
 import { TeamData, fetchTeamData, fetchScheduleData } from './datasource';
 import { useEffect, useState } from 'react';
@@ -27,11 +27,12 @@ export default function Page() {
         <ViewsDirective>
           <ViewDirective option='WorkWeek' />
           <ViewDirective option='Agenda' />
+          <ViewDirective option='Day' />
         </ViewsDirective>
         <ResourcesDirective>
           <ResourceDirective field='TeamId' title='Team' name='Teams' allowMultiple={false} dataSource={teamData} />
         </ResourcesDirective>
-        <Inject services={[WorkWeek, Agenda]} />
+        <Inject services={[WorkWeek, Agenda, Day]} />
       </ScheduleComponent>
     </>
   )
