@@ -1,10 +1,10 @@
-# PTO Requests
+# PrivatePTO
 
 ## Overview
 
 This project is a web application built with Next.js, a popular open-source React framework, allowing for server-side rendering and easy deployment. The application includes security measures such as hashing and salting passwords using bcrypt-ts and preventing SQL injection with Next.js.
 
-## The Objective
+## The Initial Objective
 The Objective of the project was to build a secure web facing application for the sponsors need of automated pto requests.
 
 ## Deployment with Vercel
@@ -17,6 +17,9 @@ This project utilizes Vercel for deployment automation. Vercel simplifies the de
 4. Vercel will automatically deploy the application upon code changes, ensuring seamless updates.
 
 ## Security Measures
+
+### Login/Logout Functionality
+Login-functionality was implemented in order to keep unwanted users out.
 
 ### Hashed & Salted Passwords
 
@@ -37,11 +40,12 @@ The end goals of this project include setting up the following functionalities:
 ### Dashboard Setup
 
 - View your Paid Time Off (PTO) hours.
-- Access a list of employees with their respective roles.
+- Access a list of employees with their respective contact information.
 
 ### Schedule Page Setup
 
 - View the work schedule for the week.
+- View PTO requests within the schedule.
 
 ### PTO Page Setup
 
@@ -51,7 +55,7 @@ The end goals of this project include setting up the following functionalities:
 These functionalities aim to provide users with a comprehensive platform to manage their PTO, access work schedules, and facilitate PTO requests efficiently.
 
 
-## Setup
+## Local Setup
 
 Follow these steps to set up the web application locally:
 
@@ -64,10 +68,10 @@ Follow these steps to set up the web application locally:
    nextjs-dashboard
 3. in terminal type
    ````
-   npm i
-   npm run dev
+   npm
    npm ci
-4. The application can now be run locally in web browser
+   npm run dev
+   4. The application can now be run locally in web browser
 ````
 http://localhost:3000
 
