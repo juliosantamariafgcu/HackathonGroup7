@@ -74,7 +74,7 @@ export async function fetchScheduleData() {
 
         const timeOff = {
           Id: employee.email + ',' + schedule.iso_8601_week,
-          Subject: employee.name + "(Time Off)",
+          Subject: employee.name + " (Time Off)",
           StartTime,
           EndTime: WorkStartTime,
           IsAllDay: false,
