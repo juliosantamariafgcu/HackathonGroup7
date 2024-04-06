@@ -1,39 +1,37 @@
 'use client'
 import {
-  Week, Agenda, ScheduleComponent, ViewsDirective, ViewDirective, EventSettingsModel, ResourcesDirective, ResourceDirective, Inject, Resize, DragAndDrop
+  WorkWeek, Agenda, ScheduleComponent, ViewsDirective, ViewDirective, EventSettingsModel, ResourcesDirective, ResourceDirective, Inject
 } from '@syncfusion/ej2-react-schedule';
-import { timelineResourceData } from './datasource';
+import { TeamData, fetchTeamData, fetchScheduleData } from './datasource';
+import { useEffect, useState } from 'react';
 
 export default function Page() {
-  const eventSettings: EventSettingsModel = { dataSource: timelineResourceData }
-  const group = { byGroupID: false, resources: ['Projects', 'Categories'] }
+  const [dataSource, setDataSource] = useState<Object[] | undefined>(undefined);
+  const [teamData, setTeamData] = useState<TeamData[] | undefined>(undefined);
 
-  const projectData: Object[] = [
-    { text: 'PROJECT 1', id: 1, color: '#cb6bb2' },
-    { text: 'PROJECT 2', id: 2, color: '#56ca85' },
-    { text: 'PROJECT 3', id: 3, color: '#df5286' },
-  ];
-  const categoryData: Object[] = [
-    { text: 'Development', id: 1, color: '#1aaa55' },
-    { text: 'Testing', id: 2, color: '#7fa900' }
-  ];
+  useEffect(() => {
+    fetchScheduleData().then(setDataSource);
+  }, []);
+
+  useEffect(() => {
+    fetchTeamData().then(setTeamData);
+  }, []);
+
+  const eventSettings: EventSettingsModel = { dataSource };
+  const group = { byGroupID: false, resources: ['Teams'] };
   return (
     <>
       <h2>Schedule</h2>
-      <ScheduleComponent width='100%' height='550px' currentView='Week' selectedDate={new Date(2024, 3, 5)} eventSettings={eventSettings} group={group} >
+      <ScheduleComponent height='550px' currentView='WorkWeek' selectedDate={new Date(2024, 2, 31)} eventSettings={eventSettings} group={group}
+                         startHour='06:00' endHour='22:00' allowResizing={false} readonly>
         <ViewsDirective>
-          <ViewDirective option='Week' />
+          <ViewDirective option='WorkWeek' />
           <ViewDirective option='Agenda' />
         </ViewsDirective>
         <ResourcesDirective>
-          <ResourceDirective field='ProjectId' title='Choose Project' name='Projects' allowMultiple={false}
-                             dataSource={projectData} textField='text' idField='id' colorField='color'>
-          </ResourceDirective>
-          <ResourceDirective field='TaskId' title='Category' name='Categories' allowMultiple={true}
-                             dataSource={categoryData} textField='text' idField='id' colorField='color'>
-          </ResourceDirective>
+          <ResourceDirective field='TeamId' title='Team' name='Teams' allowMultiple={false} dataSource={teamData} />
         </ResourcesDirective>
-        <Inject services={[Week, Agenda, Resize, DragAndDrop]} />
+        <Inject services={[WorkWeek, Agenda]} />
       </ScheduleComponent>
     </>
   )
