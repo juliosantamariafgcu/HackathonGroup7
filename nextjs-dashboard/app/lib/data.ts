@@ -63,14 +63,18 @@ export async function requestTimeOff(
 }
 
 // `day_off` is represented by `Date` at midnight local time, not midnight UTC.
-export async function fetchPendingRequests() {
+export async function fetchPendingRequests(query: string = '') {
   noStore();
 
   try {
+    const escapedQuery = query
+      .replace(/[%_\\]/g, (symbol) => '\\' + symbol)
+      .toLowerCase();
     const pendingRequests = await sql`
       SELECT *
       FROM requests
-      WHERE status = 'Pending';
+      JOIN employees ON employee_email = email
+      WHERE status = 'Pending' AND lower(name) LIKE ${'%' + escapedQuery + '%'};
     `;
     return pendingRequests.rows.map((request) => ({
       ...request,

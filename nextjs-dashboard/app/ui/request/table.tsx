@@ -12,7 +12,7 @@ export default async function RequestsTable({query, currentPage,}: {
   query: string;
   currentPage: number;
 }) {
-  const requests = await fetchPendingRequests(/* query, currentPage */);
+  const requests = await fetchPendingRequests(query /* , currentPage */);
   const allEmployees = await fetchEmployees();
   let employeeMap = new Map(
     allEmployees.map((employee) => [employee.email, employee]),
