@@ -1,6 +1,12 @@
 'use server';
 
-import { fetchEmployees, fetchSchedules, fetchTeams } from '@/app/lib/data';
+import {
+  fetchEmployees,
+  fetchPendingRequests,
+  fetchSchedules,
+  fetchTeams,
+} from '@/app/lib/data';
+import { Request } from '@/app/lib/definitions';
 import { firstDayOfWeek, uniqueColorFromString } from '@/app/lib/utils';
 
 const CURRENT_YEAR = 2024;
@@ -16,6 +22,15 @@ export type ScheduleData = {
 };
 
 export async function fetchScheduleData() {
+  const pendingRequests = await fetchPendingRequests();
+  const pendingRequestsMap = new Map<string, Request[]>();
+  for (const request of pendingRequests) {
+    const key =
+      request.employee_email + ',' + request.day_off.toLocaleDateString();
+    const already = pendingRequestsMap.get(key) ?? [];
+    pendingRequestsMap.set(key, already.concat([request]));
+  }
+
   const schedules = await fetchSchedules();
   const employees = await fetchEmployees();
   const employeeMap = new Map(
@@ -38,21 +53,50 @@ export async function fetchScheduleData() {
         StartTime.setDate(StartTime.getDate() + index);
         StartTime.setHours(9);
 
+        const hoursWorking = schedule[key];
+        const requests =
+          pendingRequestsMap.get(
+            employee.email + ',' + StartTime.toLocaleDateString(),
+          ) ?? [];
+        let hoursOff = requests.reduce(
+          (sum, request) => sum + request.hours_off,
+          0,
+        );
+        hoursOff = Math.min(hoursOff, hoursWorking);
+
+        const WorkStartTime = firstDayOfWeek(schedule.iso_8601_week, CURRENT_YEAR);
+        WorkStartTime.setDate(WorkStartTime.getDate() + index);
+        WorkStartTime.setHours(9 + hoursOff);
+
         const EndTime = firstDayOfWeek(schedule.iso_8601_week, CURRENT_YEAR);
         EndTime.setDate(EndTime.getDate() + index);
-        EndTime.setHours(9 + schedule[key]);
+        EndTime.setHours(9 + hoursWorking);
 
-        return {
-          Id: employee.email + '|' + schedule.iso_8601_week,
-          Subject: employee.name,
+        const timeOff = {
+          Id: employee.email + ',' + schedule.iso_8601_week,
+          Subject: employee.name + "(Time Off)",
           StartTime,
+          EndTime: WorkStartTime,
+          IsAllDay: false,
+          TeamId,
+        };
+
+        const work = {
+          Id: employee.email + ',' + schedule.iso_8601_week,
+          Subject: employee.name,
+          StartTime: WorkStartTime,
           EndTime,
           IsAllDay: false,
           TeamId,
         };
+
+        const events = [];
+        if (hoursOff > 0) events.push(timeOff);
+        if (hoursWorking - hoursOff > 0) events.push(work);
+        return events;
       });
     })
-    .flat() satisfies ScheduleData[];
+    .flat(2) satisfies ScheduleData[];
 }
 
 export type TeamData = {
